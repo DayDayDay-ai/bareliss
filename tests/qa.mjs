@@ -223,6 +223,34 @@ const dragPosition = await toolPosition();
 ok("Touch drag keeps laser aligned with finger",
   Math.abs(dragPosition.x - 30) < 1 && Math.abs(dragPosition.y - 80) < 1);
 await touch.close();
+// Exercise the Safari-specific input path; desktop emulation cannot test hardware haptics.
+const ios = await browser.newContext({
+  viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true,
+  userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1",
+});
+await ios.addInitScript(() => {
+  delete Navigator.prototype.vibrate;
+  Object.defineProperty(HTMLInputElement.prototype, "switch", { value: false });
+});
+const ip = await ios.newPage();
+await ip.goto(qaBase);
+await ip.locator(".hero-secondary").tap();
+await ip.waitForTimeout(700);
+await ip.getByRole("button", { name: "СРАЗУ ПОПРОБОВАТЬ ЛАЗЕР ↗" }).scrollIntoViewIfNeeded();
+await ip.waitForTimeout(700);
+await ip.getByRole("button", { name: "СРАЗУ ПОПРОБОВАТЬ ЛАЗЕР ↗" }).tap();
+await ip.waitForTimeout(500);
+await ip.getByRole("button", { name: "ПОПРОБОВАТЬ →", exact: true }).tap();
+const nativeSwitch = ip.locator(".ios-laser-haptic");
+await nativeSwitch.tap({ position: { x: 80, y: 90 } });
+await ip.waitForTimeout(100);
+ok("iPhone direct tap toggles native haptic switch", await nativeSwitch.isChecked());
+ok("iPhone haptic input still treats hair groups", await ip.locator(".hair.removed").count() > 1);
+const ib = await ip.locator(".skin-surface").boundingBox();
+const it = await ip.locator(".tool").evaluate((tool) => ({ x: parseFloat(tool.style.left), y: parseFloat(tool.style.top) }));
+ok("iPhone haptic input keeps laser aligned with tap",
+  Math.abs(it.x - 80 / ib.width * 100) < 1 && Math.abs(it.y - 90 / ib.height * 100) < 1);
+await ios.close();
 for (const route of ["about", "laser", "zones", "prices", "contacts"]) {
   const response = await page.goto(qaBase + "/" + route + "/");
   ok(`Route /${route}/ works`, response.status() === 200);

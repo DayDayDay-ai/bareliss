@@ -57,11 +57,21 @@ export default function Experience({ book }: { book: () => void }) {
   const [tension, setTension] = useState(0);
   const [position, setPosition] = useState({ x: 50, y: 50 });
   const [lastPulse, setLastPulse] = useState(0);
+  const [iosHaptics, setIosHaptics] = useState(false);
   const surface = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: number; y: number; pointer: number } | null>(null);
   const lastHairTouch = useRef(0);
   const context = useRef<AudioContext | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    // Recent Safari requires a direct tap on its native switch for haptics.
+    // Keep the touch target local to the laser; plucking needs free dragging.
+    setIosHaptics(
+      /iPhone/.test(navigator.userAgent) &&
+      !("vibrate" in navigator) &&
+      "switch" in document.createElement("input"),
+    );
+  }, []);
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
@@ -233,7 +243,9 @@ export default function Experience({ book }: { book: () => void }) {
             }}
             onPointerDown={(e) => {
               if (state === "laser-playing") {
-                e.currentTarget.setPointerCapture(e.pointerId);
+                if (!(e.target instanceof HTMLInputElement)) {
+                  e.currentTarget.setPointerCapture(e.pointerId);
+                }
                 const r = e.currentTarget.getBoundingClientRect();
                 pulse(
                   ((e.clientX - r.left) / r.width) * 100,
@@ -242,6 +254,15 @@ export default function Experience({ book }: { book: () => void }) {
               }
             }}
           >
+            {state === "laser-playing" && iosHaptics && (
+              <input
+                type="checkbox"
+                {...{ switch: "" }}
+                className="ios-laser-haptic"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+            )}
             {(state === "pluck-playing" ? pluck : laser).map((h) => (
               <button
                 key={h.id}
