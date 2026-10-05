@@ -59,6 +59,7 @@ export default function Experience({ book }: { book: () => void }) {
   const [lastPulse, setLastPulse] = useState(0);
   const surface = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: number; y: number; pointer: number } | null>(null);
+  const lastHairTouch = useRef(0);
   const context = useRef<AudioContext | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
@@ -121,6 +122,7 @@ export default function Experience({ book }: { book: () => void }) {
     }
   }
   function pulse(x = position.x, y = position.y) {
+    setPosition({ x, y });
     if (state !== "laser-playing" || flash) return;
     const fresh = laser
       .filter(
@@ -231,6 +233,7 @@ export default function Experience({ book }: { book: () => void }) {
             }}
             onPointerDown={(e) => {
               if (state === "laser-playing") {
+                e.currentTarget.setPointerCapture(e.pointerId);
                 const r = e.currentTarget.getBoundingClientRect();
                 pulse(
                   ((e.clientX - r.left) / r.width) * 100,
@@ -258,6 +261,7 @@ export default function Experience({ book }: { book: () => void }) {
                   } as React.CSSProperties
                 }
                 onPointerDown={(e) => {
+                  if (e.pointerType === "touch") lastHairTouch.current = Date.now();
                   if (state === "pluck-playing") {
                     surface.current?.setPointerCapture(e.pointerId);
                     drag.current = {
@@ -270,7 +274,7 @@ export default function Experience({ book }: { book: () => void }) {
                   }
                 }}
                 onClick={(e) => {
-                  if (e.detail === 0) {
+                  if (e.detail === 0 && Date.now() - lastHairTouch.current > 600) {
                     if (state === "pluck-playing") remove(h.id);
                     else pulse(h.x, h.y);
                   }

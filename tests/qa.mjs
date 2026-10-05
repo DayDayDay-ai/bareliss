@@ -198,10 +198,30 @@ await tp.screenshot({
 });
 await tp.getByRole("button", { name: "ПОПРОБОВАТЬ →", exact: true }).tap();
 await tp.locator(".skin-surface").tap({ position: { x: 80, y: 90 } });
+await tp.waitForTimeout(80);
+const skin = tp.locator(".skin-surface");
+const skinBox = await skin.boundingBox();
+const toolPosition = () => skin.locator(".tool").evaluate((tool) => ({
+  x: parseFloat(tool.style.left), y: parseFloat(tool.style.top),
+}));
+const tapPosition = await toolPosition();
+ok("Touch tap moves laser to pulse location",
+  Math.abs(tapPosition.x - 80 / skinBox.width * 100) < 1 &&
+  Math.abs(tapPosition.y - 90 / skinBox.height * 100) < 1);
 ok(
   "Touch laser pulse treats hairs",
   (await tp.locator(".hair.removed").count()) > 1,
 );
+await tp.waitForTimeout(220);
+const start = { x: skinBox.x + skinBox.width * 0.75, y: skinBox.y + skinBox.height * 0.65 };
+const end = { x: skinBox.x + skinBox.width * 0.3, y: skinBox.y + skinBox.height * 0.8 };
+await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [end] });
+await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+await tp.waitForTimeout(80);
+const dragPosition = await toolPosition();
+ok("Touch drag keeps laser aligned with finger",
+  Math.abs(dragPosition.x - 30) < 1 && Math.abs(dragPosition.y - 80) < 1);
 await touch.close();
 for (const route of ["about", "laser", "zones", "prices", "contacts"]) {
   const response = await page.goto(qaBase + "/" + route + "/");
