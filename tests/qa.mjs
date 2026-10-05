@@ -1,4 +1,4 @@
-const qaBase=process.env.QA_BASE_URL || "http://127.0.0.1:3000";
+const qaBase = process.env.QA_BASE_URL || "http://127.0.0.1:3000";
 import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 const root = new URL("../qa/", import.meta.url);
@@ -83,8 +83,10 @@ await page.getByLabel("Комплекс", { exact: true }).selectOption("set-2")
 await dialog.getByRole("button", { name: "ПРОДОЛЖИТЬ →" }).click();
 await dialog.getByRole("button", { name: "ПРОДОЛЖИТЬ →" }).click();
 const futureDate = new Date();
-futureDate.setDate(futureDate.getDate()+3);
-await page.getByLabel("Предпочтительная дата").fill(futureDate.toISOString().slice(0,10));
+futureDate.setDate(futureDate.getDate() + 3);
+await page
+  .getByLabel("Предпочтительная дата")
+  .fill(futureDate.toISOString().slice(0, 10));
 await dialog.getByRole("button", { name: "ПРОДОЛЖИТЬ →" }).click();
 await dialog.getByRole("button", { name: "13:00" }).click();
 await dialog.getByRole("button", { name: "ПРОДОЛЖИТЬ →" }).click();
@@ -205,7 +207,8 @@ for (const route of ["about", "laser", "zones", "prices", "contacts"]) {
   const response = await page.goto(qaBase + "/" + route + "/");
   ok(`Route /${route}/ works`, response.status() === 200);
 }
-console.log(JSON.stringify({errors}));ok("No browser errors", errors.length === 0);
+console.log(JSON.stringify({ errors }));
+ok("No browser errors", errors.length === 0);
 await writeFile(
   new URL("report.json", root),
   JSON.stringify(
@@ -216,5 +219,3 @@ await writeFile(
 );
 console.log(JSON.stringify({ passed: checks.length, errors, pulseCount }));
 await browser.close();
-
-

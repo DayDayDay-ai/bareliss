@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import {localPath,assetPath,siteUrl} from '@/lib/site';
+import { localPath, assetPath, siteUrl } from "@/lib/site";
 import { motion, useReducedMotion } from "framer-motion";
 import Booking from "./Booking";
 import { Zones, Prices } from "@/sections/ZonesPrices";
@@ -70,8 +70,14 @@ export default function Site({ focus }: { focus?: string }) {
         );
       }
       if (hero.current) {
-        hero.current.style.setProperty('--px',`${(e.clientX/window.innerWidth-.5)*6}px`);
-        hero.current.style.setProperty('--py',`${(e.clientY/window.innerHeight-.5)*6}px`);
+        hero.current.style.setProperty(
+          "--px",
+          `${(e.clientX / window.innerWidth - 0.5) * 6}px`,
+        );
+        hero.current.style.setProperty(
+          "--py",
+          `${(e.clientY / window.innerHeight - 0.5) * 6}px`,
+        );
         hero.current.style.setProperty(
           "--mx",
           `${(e.clientX / window.innerWidth) * 100}%`,
@@ -102,7 +108,7 @@ export default function Site({ focus }: { focus?: string }) {
         <span />
       </div>
       <header className={scrolled ? "scrolled" : ""}>
-        <a href={localPath('/')} className="wordmark">
+        <a href={localPath("/")} className="wordmark">
           BARE LISS<span>.</span>
           <small>SKIN STUDIO</small>
         </a>
@@ -129,7 +135,7 @@ export default function Site({ focus }: { focus?: string }) {
         <section className="hero" ref={hero}>
           <div className="hero-photo">
             <Image
-              src={assetPath('/hero.webp')}
+              src={assetPath("/hero.webp")}
               alt="Скульптурные складки тёплого шёлка в мягком свете — иллюстрация бренда"
               fill
               priority
@@ -290,7 +296,7 @@ export default function Site({ focus }: { focus?: string }) {
       </main>
       <footer>
         <div className="footer-top">
-          <a className="footer-brand" href={localPath('/')}>
+          <a className="footer-brand" href={localPath("/")}>
             BARE LISS<span>.</span>
             <small>SKIN STUDIO</small>
           </a>
@@ -335,13 +341,12 @@ export default function Site({ focus }: { focus?: string }) {
             "@context": "https://schema.org",
             "@type": "BeautySalon",
             name: "BARE LISS. SKIN STUDIO",
-            url:siteUrl+'/',
+            url: siteUrl + "/",
             description: "Студия лазерной эпиляции",
-            image:siteUrl+'/hero.webp',
+            image: siteUrl + "/hero.webp",
           }),
         }}
       />
     </>
   );
 }
-

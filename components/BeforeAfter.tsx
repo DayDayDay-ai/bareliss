@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import {assetPath} from '@/lib/site';
+import { assetPath } from "@/lib/site";
 import { useState } from "react";
 import type { ResultPair } from "@/data/results";
 export default function BeforeAfter({ result }: { result: ResultPair }) {

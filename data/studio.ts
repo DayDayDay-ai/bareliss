@@ -1,7 +1,7 @@
-import {siteUrl} from '@/lib/site';
+import { siteUrl } from "@/lib/site";
 export const studio = {
   name: "BARE LISS.",
-  url:siteUrl,
+  url: siteUrl,
   address: "Адрес скоро появится",
   phone: null,
   instagram: null,
